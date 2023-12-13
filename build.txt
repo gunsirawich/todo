@@ -1,0 +1,9 @@
+docker network create mynetwork 
+
+docker run --name mypostgresdb --network mynetwork -e POSTGRES_PASSWORD=mysecretpassword -d postgres
+
+docker exec -it mypostgresdb psql -U postgres -c "CREATE DATABASE mytest;"
+
+docker build -t todo:test -f Dockerfile .
+
+docker run -p 8080:8080 --env-file ./local.env --network mynetwork --name mytest todo:test
