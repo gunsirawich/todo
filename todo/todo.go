@@ -70,6 +70,19 @@ func (t *TodoHandler) List(c *gin.Context) {
 	createdAt := c.Query("created_at")
 	updatedAt := c.Query("updated_at")
 	title := c.Query("title")
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	pageSize, _ := strconv.Atoi(c.DefaultQuery("page_size", "10"))
+
+	if page < 1 {
+		page = 10
+	}
+	if pageSize < 1 {
+		pageSize = 10
+	}
+
+	offset := (page - 1) * pageSize
+	query := t.db
+	query = query.Offset(offset).Limit(pageSize)
 
 	if id != "" {
 		var todo Todo
@@ -82,7 +95,6 @@ func (t *TodoHandler) List(c *gin.Context) {
 		c.JSON(http.StatusOK, todo)
 	} else {
 		var todos []Todo
-		query := t.db
 		if createdAt != "" {
 			query = query.Where("created_at = ?", createdAt)
 		}
